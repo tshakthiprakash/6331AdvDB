@@ -7,5 +7,9 @@ port = int(os.getenv('PORT', 8000))
 def home():
    return "Hello World"
 
+@app.route('/first')
+def first():
+   return "Hello First"
+
 if __name__ == '__main__':
    app.run()
