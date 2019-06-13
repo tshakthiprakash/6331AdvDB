@@ -6,9 +6,5 @@ import os
 def home():
    return "Hello World"
 
-@app.route('/first')
-def first():
-   return "Hello First"
-
 if __name__ == '__main__':
    app.run()
