@@ -6,6 +6,7 @@ import os
 import time
 import redis
 import pickle as pickle
+import random
 
 con = sql.connect("database.db")
 rd = redis.StrictRedis(host='shakthi8112.redis.cache.windows.net', port=6380, db=0,password='ncP8NFImWyXmxKjo1MOVoAmJg7KRFX7511MbiSFHR9k=',ssl=True)
@@ -47,12 +48,32 @@ def list():
 	act_time = end_time - start_time
 	print(act_time)
 	return render_template("results.html",row = rows,act_time=act_time,t=t)
-
-@app.route('/check')
-def check():
-	if rd.exists('PORTAL_CONSOLE'):
-		print('success')
+	
+@app.route('/analyse')
+def analyse():
+	start_time = time.time()
+	for i in range(10):
+		val = str(random.uniform(2,5))
+		print(val)
+		query = "select * from Earthquake where mag > "+val
+		if rd.get("result"+str(i)):
+			print("cached if")
+			t =  "with"
+			rows = pickle.loads(rd.get("result"+str(i)))
+		else :
+			print("else")
+			con = sql.connect("database.db")
+			cur = con.cursor()
+			cur.execute(query)
+			rows = cur.fetchall()
+			rd.set("result"+str(i),pickle.dumps(rows))
+			t="without"
+	end_time = time.time()
+	act_time = end_time - start_time
+	print(act_time)
 	return render_template("home.html")
+
+
 
 if __name__ == '__main__':
    app.run()
