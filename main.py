@@ -52,7 +52,7 @@ def list():
 @app.route('/analyse')
 def analyse():
 	start_time = time.time()
-	for i in range(10):
+	for i in range(100):
 		val = str(random.uniform(2,5))
 		#print(val)
 		query = "select * from Earthquake where mag > "+val
