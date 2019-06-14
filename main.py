@@ -48,6 +48,8 @@ def list():
 	act_time = end_time - start_time
 	print(act_time)
 	return render_template("results.html",row = rows,act_time=act_time,t=t)
+
+analyseglobe = 0
 	
 @app.route('/analyse')
 def analyse():
@@ -70,8 +72,10 @@ def analyse():
 			t="without"
 	end_time = time.time()
 	act_time = end_time - start_time
+	if analyseglobe == 0 :
+		analyseglobe = act_time
 	#print(act_time)
-	return render_template("home.html",t = act_time )
+	return render_template("home.html",t = act_time,ts = analyseglobe)
 
 
 
