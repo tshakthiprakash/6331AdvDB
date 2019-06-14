@@ -33,7 +33,8 @@ def list():
 	query = "select * from Earthquake"
 	if rd.get(query):
 		print("cached if")
-		rows = pickle.loads(rd.get("result"))
+		t =  "with"
+		rows = pickle.loads(rd.get(query))
 	else :
 		print("else")
 		con = sql.connect("database.db")
@@ -41,10 +42,11 @@ def list():
 		cur.execute(query)
 		rows = cur.fetchall()
 		rd.set(query,pickle.dumps(rows))
+		t="without"
 	end_time = time.time()
 	act_time = end_time - start_time
 	print(act_time)
-	return render_template("results.html",row = rows,act_time=act_time)
+	return render_template("results.html",row = rows,act_time=act_time,t=t)
 
 @app.route('/check')
 def check():
