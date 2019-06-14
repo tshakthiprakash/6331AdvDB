@@ -54,14 +54,14 @@ def analyse():
 	start_time = time.time()
 	for i in range(10):
 		val = str(random.uniform(2,5))
-		print(val)
+		#print(val)
 		query = "select * from Earthquake where mag > "+val
 		if rd.get("result"+str(i)):
-			print("cached if")
+			#print("cached if")
 			t =  "with"
 			rows = pickle.loads(rd.get("result"+str(i)))
 		else :
-			print("else")
+			#print("else")
 			con = sql.connect("database.db")
 			cur = con.cursor()
 			cur.execute(query)
@@ -70,8 +70,8 @@ def analyse():
 			t="without"
 	end_time = time.time()
 	act_time = end_time - start_time
-	print(act_time)
-	return render_template("home.html")
+	#print(act_time)
+	return render_template("home.html",t = act_time )
 
 
 
