@@ -34,7 +34,7 @@ def list():
 	end_time = time.time()
 	act_time = end_time - start_time
 	print(act_time)
-	return render_template("results.html",row = rows)
+	return render_template("results.html",row = rows,act_time=act_time)
 
 if __name__ == '__main__':
    app.run()
