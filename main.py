@@ -58,7 +58,7 @@ def analyse():
 	for i in nd.arange(0,5,0.1):
 		#val = str(random.uniform(2,5))
 		#print(val)
-		query = "select * from Earthquake where mag > "+i
+		query = "select * from Earthquake where mag > "+str(i)
 		if rd.get("result"+str(i)):
 			#print("cached if")
 			t =  "with"
