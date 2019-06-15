@@ -1,6 +1,7 @@
 from flask import *
 import sqlite3 as sql
 import pandas as pd
+import numpy as nd
 application = app = Flask(__name__)
 import os
 import time
@@ -54,10 +55,10 @@ analyseglobe = 0
 @app.route('/analyse')
 def analyse():
 	start_time = time.time()
-	for i in range(100):
-		val = str(random.uniform(2,5))
+	for i in nd.arange(0,5,0.1):
+		#val = str(random.uniform(2,5))
 		#print(val)
-		query = "select * from Earthquake where mag > "+val
+		query = "select * from Earthquake where mag > "+i
 		if rd.get("result"+str(i)):
 			#print("cached if")
 			t =  "with"
