@@ -54,26 +54,29 @@ analyseglobe = 0
 	
 @app.route('/analyse')
 def analyse():
+	countcache = 0 
+	countwithoutcache = 0
 	start_time = time.time()
-	for i in nd.arange(0,5,0.1):
-		#val = str(random.uniform(2,5))
-		#print(val)
-		query = "select * from Earthquake where mag > "+str(i)
-		if rd.get("result"+str(i)):
-			#print("cached if")
-			t =  "with"
-			rows = pickle.loads(rd.get("result"+str(i)))
+	for i in range(100):
+		val = str(round(random.uniform(2,5),2))
+		print(val)
+		query = "select * from Earthquake where mag > "+val
+		if rd.get("result"+val):
+			print("cached")
+			countcache  = countcache + 1
+			rows = pickle.loads(rd.get("result"+val))
 		else :
 			#print("else")
 			con = sql.connect("database.db")
+			print("without cached")
 			cur = con.cursor()
 			cur.execute(query)
 			rows = cur.fetchall()
-			rd.set("result"+str(i),pickle.dumps(rows))
-			t="without"
+			rd.set("result"+val,pickle.dumps(rows))
+			countwithoutcache = countwithoutcache + 1
 	end_time = time.time()
 	act_time = end_time - start_time
-	return render_template("home.html",time = act_time,t = t)
+	return render_template("home.html",time = act_time,countwithoutcache = countwithoutcache,countcache = countcache)
 
 
 
