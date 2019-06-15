@@ -58,7 +58,7 @@ def analyse():
 	countwithoutcache = 0
 	start_time = time.time()
 	for i in range(100):
-		val = str(random.uniform(2,5))
+		val = str(round(random.uniform(2,5),2))
 		print(val)
 		query = "select * from Earthquake where mag > "+val
 		if rd.get("result"+val):
