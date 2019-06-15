@@ -53,7 +53,6 @@ analyseglobe = 0
 	
 @app.route('/analyse')
 def analyse():
-	global analyseglobe
 	start_time = time.time()
 	for i in range(100):
 		val = str(random.uniform(2,5))
@@ -73,10 +72,7 @@ def analyse():
 			t="without"
 	end_time = time.time()
 	act_time = end_time - start_time
-	if analyseglobe == 0 :
-		analyseglobe = act_time
-	#print(analyseglobe)
-	return render_template("home.html",t = act_time,ts = analyseglobe)
+	return render_template("home.html",time = act_time,t = t)
 
 
 
