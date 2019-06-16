@@ -78,6 +78,31 @@ def analyse():
 	act_time = end_time - start_time
 	return render_template("home.html",time = act_time,countwithoutcache = countwithoutcache,countcache = countcache)
 
+@app.route('/sample')
+def sample():
+	countcache = 0 
+	countwithoutcache = 0
+	query = "select net from Earthquake where net like 'n%'"
+	con = sql.connect("database.db")
+	cur = con.cursor()
+	cur.execute(query)
+	resultnet = cur.fetchall()
+	start_time = time.time()
+	for i in range(100):
+		val = random.randint(0,len(resultnet))
+		strr = str(resultnet[val])
+		query  = "select * from Earthquake where net = '"+strr[2:4]+"'"
+		if rd.get(query):
+			print("cached")
+		else :
+			print("without")
+			cur = con.cursor()
+			cur.execute(query)
+			rows = cur.fetchall()
+			rd.set(query,pickle.dumps(rows))
+	end_time = time.time()
+	act_time = end_time - start_time
+	return render_template("home.html",time = act_time)
 
 
 if __name__ == '__main__':
