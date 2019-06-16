@@ -92,11 +92,10 @@ def sample():
 		val = random.randint(0,len(resultnet))
 		strr = str(resultnet[val])
 		query  = "select * from Earthquake where net = '"+strr[2:4]+"'"
-		else :
-			cur = con.cursor()
-			cur.execute(query)
-			rows = cur.fetchall()
-			rd.set(query,pickle.dumps(rows))
+		cur = con.cursor()
+		cur.execute(query)
+		rows = cur.fetchall()
+		rd.set(query,pickle.dumps(rows))
 	end_time = time.time()
 	act_time = end_time - start_time
 	return render_template("home.html",time = act_time)
