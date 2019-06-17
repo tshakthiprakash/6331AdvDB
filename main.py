@@ -132,28 +132,32 @@ def samples():
 @app.route('/select_lat')
 def select_lat():
     #for i in range(100):
-		cache = "mycache"
 		start_t = time.time()
 		lat=32
 		lon=-117
 		dist = 100
 		query  = "select * from Earthquake "
-		con = sql.connect("database.db")
-		cur = con.cursor()
-		cur.execute(query)
-		rows = cur.fetchall()
-		i=0
-		results = []
-		while(i< len(rows)):
-			dest_lat = rows[i][2]
-			dest_lon = rows[i][3]
-			distan  = distance.distance((lat,lon), (dest_lat,dest_lon)).km
-			if(distan < dist):
-				results.append(rows[i])
-			i=i+1
+		cache_name = 'result'+str(lat)+str(lon)+str(dist)
+		if rd.get(cache_name):
+			results = pickle.loads(rd.get(cache_name))
+		else :
+			con = sql.connect("database.db")
+			cur = con.cursor()
+			cur.execute(query)
+			rows = cur.fetchall()
+			i=0
+			results = []
+			while(i< len(rows)):
+				dest_lat = rows[i][2]
+				dest_lon = rows[i][3]
+				distan  = distance.distance((lat,lon), (dest_lat,dest_lon)).km
+				if(distan < dist):
+					results.append(rows[i])
+				i=i+1
+			rd.set(cache_name,pickle.dumps(results))
 		end_t = time.time() - start_t
 		print(end_t)
-		return render_template("home.html",time = results )
+		return render_template("home.html",time = results,pro_time = end_t )
 
 def convert_fig_to_html(fig):
 	from io import BytesIO
