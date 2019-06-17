@@ -7,8 +7,9 @@
 		<header> <h1> Thiruvathilingam, Shakthi Prakash </h1> </header>
 		<header> <h1> 1001518112</h1> </header>
 		<br> <br>
-		
-		The time is {{time}}<br>
+		{% for row in time %}
+		The time is {{row[2]}},{{row[3]}}<br>
+		{%endfor%}
 		The number without cache is {{countwithoutcache}}<br>
 		The number with cache is {{countcache}} 
       

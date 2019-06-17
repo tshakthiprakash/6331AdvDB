@@ -149,7 +149,7 @@ def select_lat():
 			dest_lon = rows[i][3]
 			distan  = distance.distance((lat,lon), (dest_lat,dest_lon)).km
 			if(distan < dist):
-				results = results.append(rows[i])
+				results.append(rows[i])
 			i=i+1
 		end_t = time.time() - start_t
 		print(end_t)
