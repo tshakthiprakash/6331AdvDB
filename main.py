@@ -11,6 +11,7 @@ import random
 from sklearn.cluster import KMeans
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+from matplotlib import pyplot as mpld3
 from sklearn.cluster import KMeans
 from scipy.spatial import distance
 
@@ -126,6 +127,17 @@ def samples():
 	end_time = time.time()
 	act_time = end_time - start_time
 	return render_template("home.html",time = act_time)
+
+def convert_fig_to_html(fig):
+	from io import BytesIO
+	figfile = BytesIO()
+	plt.savefig(figfile, format='png')
+	figfile.seek(0)  # rewind to beginning of file
+	import base64
+	#figdata_png = base64.b64encode(figfile.read())
+	figdata_png = base64.b64encode(figfile.getvalue())
+	return figdata_png
+	
 	
 @app.route('/clustering')
 def clustering():	
@@ -138,15 +150,10 @@ def clustering():
 	y=pd.DataFrame(rows)
 	k=KMeans(n_clusters=5,random_state=0).fit(y)
 	X= y.dropna()
-	print(X[0])
 	fig=plt.figure()
-	
 	plt.scatter(X[0],X[1])
-	#print(X[:,0])
-	plt.show()
-	#fig.savefig('static/img.png')
-	#print(k.cluster_centers_)
-	return render_template("clus_o.html",data=rows)
+	plot = convert_fig_to_html(fig)
+	return render_template("clus_o.html",data=plot.decode('utf8'))
 
 
 if __name__ == '__main__':
