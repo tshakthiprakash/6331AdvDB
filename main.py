@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 from matplotlib import pyplot as mpld3
 from sklearn.cluster import KMeans
 from scipy.spatial import distance
+from geopy import distance
 
 con = sql.connect("database.db")
 rd = redis.StrictRedis(host='shakthi8112.redis.cache.windows.net', port=6380, db=0,password='ncP8NFImWyXmxKjo1MOVoAmJg7KRFX7511MbiSFHR9k=',ssl=True)
@@ -127,6 +128,32 @@ def samples():
 	end_time = time.time()
 	act_time = end_time - start_time
 	return render_template("home.html",time = act_time)
+	
+@app.route('/select_lat')
+def select_lat():
+    #for i in range(100):
+		cache = "mycache"
+		start_t = time.time()
+		lat=32
+		lon=-117
+		dist = 100
+		query  = "select * from Earthquake "
+		con = sql.connect("database.db")
+		cur = con.cursor()
+		cur.execute(query)
+		rows = cur.fetchall()
+		i=0
+		results = []
+		while(i< len(rows)):
+			dest_lat = rows[i][2]
+			dest_lon = rows[i][3]
+			distan  = distance.distance((lat,lon), (dest_lat,dest_lon)).km
+			if(distan < dist):
+				results = results.append(rows[i])
+			i=i+1
+		end_t = time.time() - start_t
+		print(end_t)
+		return render_template("home.html",time = results )
 
 def convert_fig_to_html(fig):
 	from io import BytesIO
@@ -149,9 +176,13 @@ def clustering():
 	rows = cur.fetchall()
 	y=pd.DataFrame(rows)
 	k=KMeans(n_clusters=5,random_state=0).fit(y)
+	c=k.cluster_centers_
+	l=k.labels_
+	print(c[:,0])
 	X= y.dropna()
 	fig=plt.figure()
-	plt.scatter(X[0],X[1])
+	plt.scatter(X[0],X[1],c=l)
+	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')
 	plot = convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
 
