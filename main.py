@@ -10,7 +10,6 @@ import pickle as pickle
 import random
 from sklearn.cluster import KMeans
 import matplotlib as mpl
-mpl.use('Agg')
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 from scipy.spatial import distance
@@ -145,7 +144,7 @@ def clustering():
 	plt.scatter(X[0],X[1])
 	#print(X[:,0])
 	plt.show()
-	fig.savefig('static/img.png')
+	#fig.savefig('static/img.png')
 	#print(k.cluster_centers_)
 	return render_template("clus_o.html",data=rows)
 
