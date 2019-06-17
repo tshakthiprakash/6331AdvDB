@@ -8,6 +8,12 @@ import time
 import redis
 import pickle as pickle
 import random
+from sklearn.cluster import KMeans
+import matplotlib as mpl
+mpl.use('Agg')
+from matplotlib import pyplot as plt
+from sklearn.cluster import KMeans
+from scipy.spatial import distance
 
 con = sql.connect("database.db")
 rd = redis.StrictRedis(host='shakthi8112.redis.cache.windows.net', port=6380, db=0,password='ncP8NFImWyXmxKjo1MOVoAmJg7KRFX7511MbiSFHR9k=',ssl=True)
@@ -82,14 +88,16 @@ def analyse():
 def sample():
 	countcache = 0 
 	countwithoutcache = 0
-	query = "select net from Earthquake where net like 'n%'"
+	query = "select distinct net from Earthquake where net like 'n%'"
 	con = sql.connect("database.db")
 	cur = con.cursor()
 	cur.execute(query)
 	resultnet = cur.fetchall()
+	print(resultnet)
 	start_time = time.time()
 	for i in range(100):
-		val = random.randint(0,len(resultnet))
+		val = random.randint(0,len(resultnet)-1)
+		print(val)
 		strr = str(resultnet[val])
 		query  = "select * from Earthquake where net = '"+strr[2:4]+"'"
 		cur = con.cursor()
@@ -119,6 +127,27 @@ def samples():
 	end_time = time.time()
 	act_time = end_time - start_time
 	return render_template("home.html",time = act_time)
+	
+@app.route('/clustering')
+def clustering():	
+
+	query = "SELECT latitude,longitude FROM Earthquake "
+	con = sql.connect("database.db") 
+	cur = con.cursor()
+	cur.execute(query)
+	rows = cur.fetchall()
+	y=pd.DataFrame(rows)
+	k=KMeans(n_clusters=5,random_state=0).fit(y)
+	X= y.dropna()
+	print(X[0])
+	fig=plt.figure()
+	
+	plt.scatter(X[0],X[1])
+	#print(X[:,0])
+	plt.show()
+	fig.savefig('static/img.png')
+	#print(k.cluster_centers_)
+	return render_template("clus_o.html",data=rows)
 
 
 if __name__ == '__main__':
