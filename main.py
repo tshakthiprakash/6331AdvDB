@@ -89,27 +89,33 @@ def q1():
 def analyse():
 	countcache = 0 
 	countwithoutcache = 0
-	start_time = time.time()
-	for i in range(1000):
-		val = val + 0.
-		print(val)
+	time_with = 0
+	time_without = 0
+	for i in range(100):
+		val = str(round(random.uniform(1,5),2))
+		#print(val)
 		query = "select * from Earthquake where mag > "+val
 		if rd.get("result"+val):
-			print("cached")
+			start_t = time.time()
+			#print("cached")
 			countcache  = countcache + 1
-			rows = pickle.loads(rd.get("result"+val))
+			r = rd.get("result"+val)
+			end_t = time.time() - start_t
+			print(end_t)
+			time_with = time_with + end_t
+			#print(time_with)
 		else :
 			#print("else")
+			start_t = time.time()
 			con = sql.connect("database.db")
-			print("without cached")
+			#print("without cached")
 			cur = con.cursor()
 			cur.execute(query)
-			rows = cur.fetchall()
-			rd.set("result"+val,pickle.dumps(rows))
+			rd.set("result"+val,1)
+			end_t = time.time() - start_t
+			time_without = time_without + end_t
 			countwithoutcache = countwithoutcache + 1
-	end_time = time.time()
-	act_time = end_time - start_time
-	return render_template("home.html",time = act_time,countwithoutcache = countwithoutcache,countcache = countcache)
+	return render_template("results.html",timewith = time_with,timewithout = time_without ,countwithoutcache = countwithoutcache,countcache = countcache)
 
 @app.route('/sample')
 def sample():
