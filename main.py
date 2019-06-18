@@ -65,9 +65,9 @@ def q1():
 		lat1_random = round(random.uniform(lat1,lat2),2)
 		lat2_random = round(random.uniform(lat1,lat2),2)
 		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
-		if rd.get(str(i)):
+		if rd.get(query):
 			start_t = time.time()
-			rowsx = rd.get(str(i))
+			rowsx = rd.get(query)
 			end_time = time.time()-start_t
 			result.append(rowsx)
 			result.append(lat1_random)
@@ -81,7 +81,7 @@ def q1():
 			cur = con.cursor()
 			cur.execute(query)
 			rows = cur.fetchone()
-			rd.set(str(i),float(rows[0]))
+			rd.set(query,float(rows[0]))
 			end_time = time.time()-start_t
 			result.append(rows)
 			result.append(lat1_random)
@@ -91,21 +91,24 @@ def q1():
 			result.append(t)
 	return render_template("q1result.html",row = result)
 	
-@app.route('/analyse')
+@app.route('/analyse',methods = ['POST', 'GET'])
 def analyse():
 	countcache = 0 
 	countwithoutcache = 0
 	time_with = 0
 	time_without = 0
-	for i in range(100):
-		val = str(round(random.uniform(1,5),2))
-		#print(val)
-		query = "select * from Earthquake where mag > "+val
-		if rd.get("result"+val):
+	lat1 = float(request.form['lat1'])
+	lat2 = float(request.form['lat2'])
+	num = int(request.form['num'])
+	for i in range(num):
+		lat1_random = round(random.uniform(lat1,lat2),2)
+		lat2_random = round(random.uniform(lat1,lat2),2)
+		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
+		if rd.get(str(i)):
 			start_t = time.time()
 			#print("cached")
 			countcache  = countcache + 1
-			r = rd.get("result"+val)
+			r = rd.get(str(i))
 			end_t = time.time() - start_t
 			print(end_t)
 			time_with = time_with + end_t
@@ -117,11 +120,11 @@ def analyse():
 			#print("without cached")
 			cur = con.cursor()
 			cur.execute(query)
-			rd.set("result"+val,1)
+			rd.set(str(i),1)
 			end_t = time.time() - start_t
 			time_without = time_without + end_t
 			countwithoutcache = countwithoutcache + 1
-	return render_template("results.html",timewith = time_with/countcache,timewithout = time_without/countwithoutcache,countwithoutcache = countwithoutcache,countcache = countcache)
+	return render_template("q8results.html",timewith = time_with,timewithout = time_without,countwithoutcache = countwithoutcache,countcache = countcache,total_time = time_with+time_without )
 
 @app.route('/sample')
 def sample():

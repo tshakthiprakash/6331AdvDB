@@ -150,9 +150,80 @@ def q1():
 	return render_template("q1result.html",row = result)
 
  7. Repeat part 6 using an in-memory caching mechanism (NOT an in-memory database) repeat the previous step, then show us.
+ 
+ @app.route('/q1',methods = ['POST', 'GET'])
+def q1():
+	lat1 = float(request.form['lat1'])
+	lat2 = float(request.form['lat2'])
+	num = int(request.form['num'])
+	result = []
+	for i in range(num):
+		start_t = time.time()
+		lat1_random = round(random.uniform(lat1,lat2),2)
+		lat2_random = round(random.uniform(lat1,lat2),2)
+		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
+		if rd.get(query):
+			start_t = time.time()
+			rowsx = rd.get(query)
+			end_time = time.time()-start_t
+			result.append(rowsx)
+			result.append(lat1_random)
+			result.append(lat2_random)
+			result.append(end_time)
+			t = "with cache"
+			result.append(t)
+		else:
+			start_t = time.time()
+			con = sql.connect("database.db")
+			cur = con.cursor()
+			cur.execute(query)
+			rows = cur.fetchone()
+			rd.set(query,float(rows[0]))
+			end_time = time.time()-start_t
+			result.append(rows)
+			result.append(lat1_random)
+			result.append(lat2_random)
+			result.append(end_time)
+			t = "without cache"
+			result.append(t)
+	return render_template("q1result.html",row = result)
 
  8. Repeat part 6, allow a user to either use an in-memory caching mechanism or none, and for ALL queries 
     show ONLY cumulative time to do ALL queries.
+	@app.route('/analyse',methods = ['POST', 'GET'])
+def analyse():
+	countcache = 0 
+	countwithoutcache = 0
+	time_with = 0
+	time_without = 0
+	lat1 = float(request.form['lat1'])
+	lat2 = float(request.form['lat2'])
+	num = int(request.form['num'])
+	for i in range(num):
+		lat1_random = round(random.uniform(lat1,lat2),2)
+		lat2_random = round(random.uniform(lat1,lat2),2)
+		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
+		if rd.get(str(i)):
+			start_t = time.time()
+			#print("cached")
+			countcache  = countcache + 1
+			r = rd.get(str(i))
+			end_t = time.time() - start_t
+			print(end_t)
+			time_with = time_with + end_t
+			#print(time_with)
+		else :
+			#print("else")
+			start_t = time.time()
+			con = sql.connect("database.db")
+			#print("without cached")
+			cur = con.cursor()
+			cur.execute(query)
+			rd.set(str(i),1)
+			end_t = time.time() - start_t
+			time_without = time_without + end_t
+			countwithoutcache = countwithoutcache + 1
+	return render_template("q8results.html",timewith = time_with,timewithout = time_without,countwithoutcache = countwithoutcache,countcache = countcache,total_time = )
 
  9. Show GTA parts 5, 6, 7, 8
 
