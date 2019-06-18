@@ -67,8 +67,8 @@ def analysewith():
 		query = "select * from Earthquake where mag > "+str(val)
 		if rd.get("result"+str(i)):
 			#print("cached")
-			#rows = pickle.loads(rd.get("result"+str(i)))
-		else :
+			rows = pickle.loads(rd.get("result"+str(i)))
+		else:
 			con = sql.connect("database.db")
 			#print("without cached")
 			cur = con.cursor()
