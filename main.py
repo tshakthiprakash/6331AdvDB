@@ -62,7 +62,7 @@ analyseglobe = 0
 def analysewith():
 	start_time = time.time()
 	val=0
-	for i in range(500):
+	for i in range(100):
 		val = val + 0.01
 		query = "select * from Earthquake where mag > "+str(val)
 		if rd.get("result"+str(i)):
@@ -73,7 +73,7 @@ def analysewith():
 			#print("without cached")
 			cur = con.cursor()
 			cur.execute(query)
-			rows = cur.fetchall()
+			#rows = cur.fetchall()
 			rd.set("result"+str(i),1)
 	end_time = time.time()
 	act_time = end_time - start_time
