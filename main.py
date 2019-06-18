@@ -115,7 +115,7 @@ def analyse():
 			end_t = time.time() - start_t
 			time_without = time_without + end_t
 			countwithoutcache = countwithoutcache + 1
-	return render_template("results.html",timewith = time_with,timewithout = time_without ,countwithoutcache = countwithoutcache,countcache = countcache)
+	return render_template("results.html",timewith = time_with/countcache,timewithout = time_without/countwithoutcache,countwithoutcache = countwithoutcache,countcache = countcache)
 
 @app.route('/sample')
 def sample():
