@@ -28,7 +28,7 @@ def upload_csv():
 
 @app.route('/addrec',methods = ['POST', 'GET'])
 def addrec():
-   if request.method == 'POST':
+	if request.method == 'POST':
 	   con = sql.connect("database.db")
 	   csv = request.files['myfile']
 	   file = pd.read_csv(csv)
@@ -56,19 +56,25 @@ def list():
 	act_time = end_time - start_time
 	print(act_time)
 	return render_template("results.html",row = rows,act_time=act_time,t=t)
+	
+@app.route('/q1search')
+def q1search():
+	return render_template('q1search.html')
 
-analyseglobe = 0
-@app.route('/analysewith')
-def analysewith():
+@app.route('/q1',methods = ['POST', 'GET'])
+def q1():
 	start_time = time.time()
 	val=0
-	for i in range(100):
+	num = int(request.form['num'])
+	for i in range(num):
 		val = val + 0.01
 		query = "select * from Earthquake where mag > "+str(val)
 		if rd.get("result"+str(i)):
+			t = "with"
 			#print("cached")
 			rows =rd.get("result"+str(i))
 		else:
+			t = "without"
 			con = sql.connect("database.db")
 			#print("without cached")
 			cur = con.cursor()
@@ -77,7 +83,7 @@ def analysewith():
 			rd.set("result"+str(i),1)
 	end_time = time.time()
 	act_time = end_time - start_time
-	return render_template("home.html",time = act_time)
+	return render_template("q1result.html",time = act_time,t=t)
 	
 @app.route('/analyse')
 def analyse():
@@ -178,37 +184,6 @@ def select_lat():
 		end_t = time.time() - start_t
 		print(end_t)
 		return render_template("home.html",time = results,pro_time = end_t )
-
-def convert_fig_to_html(fig):
-	from io import BytesIO
-	figfile = BytesIO()
-	plt.savefig(figfile, format='png')
-	figfile.seek(0)  # rewind to beginning of file
-	import base64
-	#figdata_png = base64.b64encode(figfile.read())
-	figdata_png = base64.b64encode(figfile.getvalue())
-	return figdata_png
-	
-	
-@app.route('/clustering')
-def clustering():	
-
-	query = "SELECT latitude,longitude FROM Earthquake "
-	con = sql.connect("database.db") 
-	cur = con.cursor()
-	cur.execute(query)
-	rows = cur.fetchall()
-	y=pd.DataFrame(rows)
-	k=KMeans(n_clusters=5,random_state=0).fit(y)
-	c=k.cluster_centers_
-	l=k.labels_
-	print(c[:,0])
-	X= y.dropna()
-	fig=plt.figure()
-	plt.scatter(X[0],X[1],c=l)
-	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')
-	plot = convert_fig_to_html(fig)
-	return render_template("clus_o.html",data=plot.decode('utf8'))
 
 
 if __name__ == '__main__':
