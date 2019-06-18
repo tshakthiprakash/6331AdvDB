@@ -62,18 +62,33 @@ def q1():
 	result = []
 	for i in range(num):
 		start_t = time.time()
-		lat1_random = random.uniform(lat1,lat2)
-		lat2_random = random.uniform(lat1,lat2)
+		lat1_random = round(random.uniform(lat1,lat2),2)
+		lat2_random = round(random.uniform(lat1,lat2),2)
 		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
-		con = sql.connect("database.db")
-		cur = con.cursor()
-		cur.execute(query)
-		rows = cur.fetchone()
-		end_time = time.time()-start_t
-		result.append(rows)
-		result.append(lat1_random)
-		result.append(lat2_random)
-		result.append(end_time)
+		if rd.get(str(i)):
+			start_t = time.time()
+			rowsx = rd.get(str(i))
+			end_time = time.time()-start_t
+			result.append(rowsx)
+			result.append(lat1_random)
+			result.append(lat2_random)
+			result.append(end_time)
+			t = "with cache"
+			result.append(t)
+		else:
+			start_t = time.time()
+			con = sql.connect("database.db")
+			cur = con.cursor()
+			cur.execute(query)
+			rows = cur.fetchone()
+			rd.set(str(i),float(rows[0]))
+			end_time = time.time()-start_t
+			result.append(rows)
+			result.append(lat1_random)
+			result.append(lat2_random)
+			result.append(end_time)
+			t = "without cache"
+			result.append(t)
 	return render_template("q1result.html",row = result)
 	
 @app.route('/analyse')

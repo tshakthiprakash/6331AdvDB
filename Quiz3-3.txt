@@ -50,6 +50,23 @@ Quiz Q2, 3.30, Summer 2019   (c) DL, UTA, 2019
      In order to give as many people the opportunity to demo in the last few minutes, you may only demo ONE Question in the
      last 5 minutes of the quiz time or for the few minutes afterward. 
   
+  con = sql.connect("database.db")
+rd = redis.StrictRedis(host='shakthi8112.redis.cache.windows.net', port=6380, db=0,password='ncP8NFImWyXmxKjo1MOVoAmJg7KRFX7511MbiSFHR9k=',ssl=True)
+
+@app.route('/enternew')
+def upload_csv():
+   return render_template('upload.html')
+
+@app.route('/addrec',methods = ['POST', 'GET'])
+def addrec():
+	if request.method == 'POST':
+	   con = sql.connect("database.db")
+	   csv = request.files['myfile']
+	   file = pd.read_csv(csv)
+	   file.to_sql('Earthquake', con, schema=None, if_exists='replace', index=True, index_label=None, chunksize=None, dtype=None)
+	   con.close()
+	   return render_template('home.html')
+	   
 Show and submit code, when each part is complete, raise your hand and then show us:
 
  5. Show a web page and interface (which resides on the cloud provider) with your student ID followed by your
@@ -59,6 +76,42 @@ Show and submit code, when each part is complete, raise your hand and then show 
     Then, below your name and ID, through a web interface (page), allow a user to give two latitude values (lat)  
     (for example 3.0 and 5.0), and on the web page list each quake ONLY location (the name, the "place" location)
     AND date and magnitude within that range. 
+	@app.route('/')
+def home():
+   return render_template('home.html')
+   
+  <!doctype html>
+<html>
+	<body>
+
+		<center>
+		<header> <h1> Home </h1> </header>
+		<header> <h1> Thiruvathilingam, Shakthi Prakash </h1> </header>
+		<header> <h1> 1001518112</h1> </header>
+		<br> 
+			<a href="/enternew">Add CSV</a><br>
+			<a href="/q1search">Q1</a><br>
+<form action = "/list" method ="POST">
+lat 1 : <input type = "text" name= "lat1"><br>
+lat2 : 	<input type = "text" name= "lat2">	<br>
+<input type = "submit">
+</form>	
+	</body>
+</html>
+
+@app.route('/list',methods = ['POST', 'GET'])
+def list():
+	lat1 = request.form['lat1']
+	lat2 = request.form['lat2']
+	print(lat1)
+	print(lat2)
+	query = "select * from Earthquake where latitude between '"+lat1+"' and '"+lat2+"'"
+	con = sql.connect("database.db")
+	cur = con.cursor()
+	cur.execute(query)
+	rows = cur.fetchall()
+	print(rows)
+	return render_template("results.html",row = rows)
 
  6. Through a web interface (page), allow a user to give you the number of times to do the "query", 
     you will do the previous step 5 (part 5) that number of times, where the two lat values will be randomly chosen between 
@@ -69,6 +122,32 @@ Show and submit code, when each part is complete, raise your hand and then show 
     Then you will show: 
     The number of matching tuples (results) EACH time through AND random values generated as well 
     as the time taken to do EACH "random" query.
+	
+	@app.route('/q1search')
+def q1search():
+	return render_template('q1search.html')
+
+@app.route('/q1',methods = ['POST', 'GET'])
+def q1():
+	lat1 = float(request.form['lat1'])
+	lat2 = float(request.form['lat2'])
+	num = int(request.form['num'])
+	result = []
+	for i in range(num):
+		start_t = time.time()
+		lat1_random = random.uniform(lat1,lat2)
+		lat2_random = random.uniform(lat1,lat2)
+		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
+		con = sql.connect("database.db")
+		cur = con.cursor()
+		cur.execute(query)
+		rows = cur.fetchone()
+		end_time = time.time()-start_t
+		result.append(rows)
+		result.append(lat1_random)
+		result.append(lat2_random)
+		result.append(end_time)
+	return render_template("q1result.html",row = result)
 
  7. Repeat part 6 using an in-memory caching mechanism (NOT an in-memory database) repeat the previous step, then show us.
 
