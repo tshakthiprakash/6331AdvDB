@@ -62,12 +62,12 @@ analyseglobe = 0
 def analysewith():
 	start_time = time.time()
 	val=0
-	for i in range(1000):
+	for i in range(500):
 		val = val + 0.01
 		query = "select * from Earthquake where mag > "+str(val)
 		if rd.get("result"+str(i)):
 			#print("cached")
-			rows = pickle.loads(rd.get("result"+str(i)))
+			rows =rd.get("result"+str(i))
 		else:
 			con = sql.connect("database.db")
 			#print("without cached")
