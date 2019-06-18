@@ -56,27 +56,25 @@ def q1search():
 
 @app.route('/q1',methods = ['POST', 'GET'])
 def q1():
-	start_time = time.time()
-	val=0
+	lat1 = float(request.form['lat1'])
+	lat2 = float(request.form['lat2'])
 	num = int(request.form['num'])
+	result = []
 	for i in range(num):
-		val = val + 0.01
-		query = "select * from Earthquake where mag > "+str(val)
-		if rd.get("result"+str(i)):
-			t = "with"
-			#print("cached")
-			rows =rd.get("result"+str(i))
-		else:
-			t = "without"
-			con = sql.connect("database.db")
-			#print("without cached")
-			cur = con.cursor()
-			cur.execute(query)
-			#rows = cur.fetchall()
-			rd.set("result"+str(i),1)
-	end_time = time.time()
-	act_time = end_time - start_time
-	return render_template("q1result.html",time = act_time,t=t)
+		start_t = time.time()
+		lat1_random = random.uniform(lat1,lat2)
+		lat2_random = random.uniform(lat1,lat2)
+		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
+		con = sql.connect("database.db")
+		cur = con.cursor()
+		cur.execute(query)
+		rows = cur.fetchone()
+		end_time = time.time()-start_t
+		result.append(rows)
+		result.append(lat1_random)
+		result.append(lat2_random)
+		result.append(end_time)
+	return render_template("q1result.html",row = result)
 	
 @app.route('/analyse')
 def analyse():
