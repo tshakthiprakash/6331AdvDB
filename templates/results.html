@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload</title>
+    <title>Results</title>
 </head>
 <body>
-{{timewith}}<br>
-{{timewithout}}<br>
-{{countcache}}<br>
-{{countwithoutcache}}<br>
+THIRUVATHILINGAM, SHAKTHI PRAKASH 1001518112
+{% for data in row %}
+Place : {{data[8]}} Date: {{data[1]}} Mag : {{data[5]}} <br>
+{% endfor %}
 </body>
 </html>

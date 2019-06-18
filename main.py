@@ -36,26 +36,19 @@ def addrec():
 	   con.close()
 	   return render_template('home.html')
 
-@app.route('/list')
+@app.route('/list',methods = ['POST', 'GET'])
 def list():
-	start_time = time.time()
-	query = "select * from Earthquake"
-	if rd.get("result"):
-		print("cached if")
-		t =  "with"
-		rows = pickle.loads(rd.get("result"))
-	else :
-		print("else")
-		con = sql.connect("database.db")
-		cur = con.cursor()
-		cur.execute(query)
-		rows = cur.fetchall()
-		rd.set("result",pickle.dumps(rows))
-		t="without"
-	end_time = time.time()
-	act_time = end_time - start_time
-	print(act_time)
-	return render_template("results.html",row = rows,act_time=act_time,t=t)
+	lat1 = request.form['lat1']
+	lat2 = request.form['lat2']
+	print(lat1)
+	print(lat2)
+	query = "select * from Earthquake where latitude between '"+lat1+"' and '"+lat2+"'"
+	con = sql.connect("database.db")
+	cur = con.cursor()
+	cur.execute(query)
+	rows = cur.fetchall()
+	print(rows)
+	return render_template("results.html",row = rows)
 	
 @app.route('/q1search')
 def q1search():
