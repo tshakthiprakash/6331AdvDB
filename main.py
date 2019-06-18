@@ -58,14 +58,34 @@ def list():
 	return render_template("results.html",row = rows,act_time=act_time,t=t)
 
 analyseglobe = 0
+@app.route('/analysewith')
+def analysewith():
+	start_time = time.time()
+	val=0
+	for i in range(1000):
+		val = val + 0.01
+		query = "select * from Earthquake where mag > "+str(val)
+		if rd.get("result"+str(i)):
+			#print("cached")
+			#rows = pickle.loads(rd.get("result"+str(i)))
+		else :
+			con = sql.connect("database.db")
+			#print("without cached")
+			cur = con.cursor()
+			cur.execute(query)
+			rows = cur.fetchall()
+			rd.set("result"+str(i),1)
+	end_time = time.time()
+	act_time = end_time - start_time
+	return render_template("home.html",time = act_time)
 	
 @app.route('/analyse')
 def analyse():
 	countcache = 0 
 	countwithoutcache = 0
 	start_time = time.time()
-	for i in range(100):
-		val = str(round(random.uniform(2,5),2))
+	for i in range(1000):
+		val = val + 0.
 		print(val)
 		query = "select * from Earthquake where mag > "+val
 		if rd.get("result"+val):
