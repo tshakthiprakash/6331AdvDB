@@ -14,7 +14,6 @@ from matplotlib import pyplot as plt
 from matplotlib import pyplot as mpld3
 from sklearn.cluster import KMeans
 from scipy.spatial import distance
-from geopy import distance
 
 con = sql.connect("database.db")
 rd = redis.StrictRedis(host='shakthi8112.redis.cache.windows.net', port=6380, db=0,password='ncP8NFImWyXmxKjo1MOVoAmJg7KRFX7511MbiSFHR9k=',ssl=True)
@@ -36,19 +35,6 @@ def addrec():
 	   con.close()
 	   return render_template('home.html')
 
-@app.route('/list',methods = ['POST', 'GET'])
-def list():
-	lat1 = request.form['lat1']
-	lat2 = request.form['lat2']
-	print(lat1)
-	print(lat2)
-	query = "select * from Earthquake where latitude between '"+lat1+"' and '"+lat2+"'"
-	con = sql.connect("database.db")
-	cur = con.cursor()
-	cur.execute(query)
-	rows = cur.fetchall()
-	print(rows)
-	return render_template("results.html",row = rows)
 	
 @app.route('/q1search')
 def q1search():
@@ -90,115 +76,6 @@ def q1():
 			t = "without cache"
 			result.append(t)
 	return render_template("q1result.html",row = result)
-	
-@app.route('/analyse',methods = ['POST', 'GET'])
-def analyse():
-	countcache = 0 
-	countwithoutcache = 0
-	time_with = 0
-	time_without = 0
-	lat1 = float(request.form['lat1'])
-	lat2 = float(request.form['lat2'])
-	num = int(request.form['num'])
-	for i in range(num):
-		lat1_random = round(random.uniform(lat1,lat2),2)
-		lat2_random = round(random.uniform(lat1,lat2),2)
-		query = "select count(*) from Earthquake where latitude between '"+str(lat1_random)+"' and '"+str(lat2_random)+"'"
-		if rd.get(str(i)):
-			start_t = time.time()
-			#print("cached")
-			countcache  = countcache + 1
-			r = rd.get(str(i))
-			end_t = time.time() - start_t
-			print(end_t)
-			time_with = time_with + end_t
-			#print(time_with)
-		else :
-			#print("else")
-			start_t = time.time()
-			con = sql.connect("database.db")
-			#print("without cached")
-			cur = con.cursor()
-			cur.execute(query)
-			rd.set(str(i),1)
-			end_t = time.time() - start_t
-			time_without = time_without + end_t
-			countwithoutcache = countwithoutcache + 1
-	return render_template("q8results.html",timewith = time_with,timewithout = time_without,countwithoutcache = countwithoutcache,countcache = countcache,total_time = time_with+time_without )
-
-@app.route('/sample')
-def sample():
-	countcache = 0 
-	countwithoutcache = 0
-	query = "select distinct net from Earthquake where net like 'n%'"
-	con = sql.connect("database.db")
-	cur = con.cursor()
-	cur.execute(query)
-	resultnet = cur.fetchall()
-	print(resultnet)
-	start_time = time.time()
-	for i in range(100):
-		val = random.randint(0,len(resultnet)-1)
-		print(val)
-		strr = str(resultnet[val])
-		query  = "select * from Earthquake where net = '"+strr[2:4]+"'"
-		cur = con.cursor()
-		cur.execute(query)
-		rows = cur.fetchall()
-		rd.set(query,pickle.dumps(rows))
-	end_time = time.time()
-	act_time = end_time - start_time
-	return render_template("home.html",time = act_time)
-
-@app.route('/samples')
-def samples():
-	countcache = 0 
-	countwithoutcache = 0
-	query = "select net from Earthquake where net like 'n%'"
-	con = sql.connect("database.db")
-	cur = con.cursor()
-	cur.execute(query)
-	resultnet = cur.fetchall()
-	start_time = time.time()
-	for i in range(100):
-		val = random.randint(0,len(resultnet))
-		strr = str(resultnet[val])
-		query  = "select * from Earthquake where net = '"+strr[2:4]+"'"
-		if rd.get(query):
-			print("cached")
-	end_time = time.time()
-	act_time = end_time - start_time
-	return render_template("home.html",time = act_time)
-	
-@app.route('/select_lat')
-def select_lat():
-    #for i in range(100):
-		start_t = time.time()
-		lat=32
-		lon=-117
-		dist = 100
-		query  = "select * from Earthquake "
-		cache_name = 'result'+str(lat)+str(lon)+str(dist)
-		if rd.get(cache_name):
-			results = pickle.loads(rd.get(cache_name))
-		else :
-			con = sql.connect("database.db")
-			cur = con.cursor()
-			cur.execute(query)
-			rows = cur.fetchall()
-			i=0
-			results = []
-			while(i< len(rows)):
-				dest_lat = rows[i][2]
-				dest_lon = rows[i][3]
-				distan  = distance.distance((lat,lon), (dest_lat,dest_lon)).km
-				if(distan < dist):
-					results.append(rows[i])
-				i=i+1
-			rd.set(cache_name,pickle.dumps(results))
-		end_t = time.time() - start_t
-		print(end_t)
-		return render_template("home.html",time = results,pro_time = end_t )
 
 def convert_fig_to_html(fig):
 	from io import BytesIO
@@ -266,7 +143,7 @@ def clustering_pie():
 @app.route('/clustering_scatter')
 def clustering_scatter():
 
-	query = "SELECT survived,fare FROM Titanic "
+	query = "SELECT latitude,longitude FROM Earthquake "
 	con = sql.connect("database.db") 
 	cur = con.cursor()
 	cur.execute(query)
@@ -274,14 +151,23 @@ def clustering_scatter():
 	y=pd.DataFrame(rows)
 	X= y.dropna()
 	print(X)
-	k=KMeans(n_clusters=20,random_state=0).fit(X)
+	k=KMeans(n_clusters=5,random_state=0).fit(X)
 	c=k.cluster_centers_
 	l=k.labels_
 	fig=plt.figure()
+	m=[]
 	plt.scatter(X[0],X[1],c=l)
 	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')
+	for i in  range(len(c)):
+		temp=[]
+		t = "c"+str(i)
+		m.append(t)
+		for j in range(0,len(c)):
+			if i!=j :
+				temp.append(distance.euclidean(c[i],c[j]))
+		m.append(temp)
 	plot = convert_fig_to_html(fig)
-	return render_template("clus_o.html",data=plot.decode('utf8'))
+	return render_template("clus_o.html",data=plot.decode('utf8'),distance = m)
 
 @app.route('/plot_line',methods=['GET','POST'])
 def plot_line():
