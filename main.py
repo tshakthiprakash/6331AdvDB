@@ -200,6 +200,90 @@ def select_lat():
 		print(end_t)
 		return render_template("home.html",time = results,pro_time = end_t )
 
+def convert_fig_to_html(fig):
+	from io import BytesIO
+	figfile = BytesIO()
+	plt.savefig(figfile, format='png')
+	figfile.seek(0)  # rewind to beginning of file
+	import base64
+	#figdata_png = base64.b64encode(figfile.read())
+	figdata_png = base64.b64encode(figfile.getvalue())
+	return figdata_png
+	
+	
+@app.route('/clustering')
+def clustering():	
+	main_result = []
+	for i in range(0,10,2):
+		result = []
+		query = "SELECT count(*) FROM Earthquake where mag between "+str(i)+" and "+str(i+2)
+		con = sql.connect("database.db") 
+		cur = con.cursor()
+		cur.execute(query)
+		rows = cur.fetchone()
+		t = str(i)+ "-" + str(i+2)
+		result.append(t)
+		result.append(rows[0])
+		main_result.append(result)
+		print(main_result)
+	y=pd.DataFrame(main_result)
+	print(y)
+	#k=KMeans(n_clusters=5,random_state=0).fit(y)
+	#c=k.cluster_centers_
+	#l=k.labels_
+	#print(c[:,0])
+	X= y.dropna()
+	fig=plt.figure()
+	plt.bar(X[0],X[1])
+	plt.xlabel('Range', fontsize=5)
+	plt.ylabel('No of Eq', fontsize=5)
+	#plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')
+	plot = convert_fig_to_html(fig)
+	return render_template("clus_o.html",data=plot.decode('utf8'))
+	
+@app.route('/clustering_pie')
+def clustering_pie():	
+	main_result = []
+	for i in range(0,10,2):
+		result = []
+		query = "SELECT count(*) FROM Earthquake where mag between "+str(i)+" and "+str(i+2)
+		con = sql.connect("database.db") 
+		cur = con.cursor()
+		cur.execute(query)
+		rows = cur.fetchone()
+		t = str(i)+ "-" + str(i+2)
+		result.append(t)
+		result.append(rows[0])
+		main_result.append(result)
+		#print(main_result)
+	y=pd.DataFrame(main_result)
+	X= y.dropna()
+	fig=plt.figure()
+	plt.pie(X[1],labels = X[0])
+	plot = convert_fig_to_html(fig)
+	return render_template("clus_o.html",data=plot.decode('utf8'))
+	
+@app.route('/clustering_scatter')
+def clustering_scatter():
+
+	query = "SELECT survived,fare FROM Titanic "
+	con = sql.connect("database.db") 
+	cur = con.cursor()
+	cur.execute(query)
+	rows = cur.fetchall()
+	y=pd.DataFrame(rows)
+	X= y.dropna()
+	print(X)
+	k=KMeans(n_clusters=20,random_state=0).fit(X)
+	c=k.cluster_centers_
+	l=k.labels_
+	fig=plt.figure()
+	plt.scatter(X[0],X[1],c=l)
+	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')
+	plot = convert_fig_to_html(fig)
+	return render_template("clus_o.html",data=plot.decode('utf8'))
+
+
 
 if __name__ == '__main__':
    app.run()
