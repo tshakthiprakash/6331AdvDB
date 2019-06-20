@@ -61,6 +61,41 @@ Show and submit code, when each part is complete, raise your hand and then show 
     (for this quiz)
     On the same web page show the names of all states with a total population between 5 to 10 million and 
     then between 10 million and 50 million.
+	@app.route('/')
+def home():
+	result = []
+	query = "SELECT * FROM voting where TotalPop between 500 and 1000 "
+	con = sql.connect("database.db") 
+	cur = con.cursor()
+	cur.execute(query)
+	rows = cur.fetchall()
+	query = "SELECT * FROM voting where TotalPop between 1000 and 5000 "
+	con = sql.connect("database.db") 
+	cur = con.cursor()
+	cur.execute(query)
+	result = cur.fetchall()
+	return render_template('home.html',rows = rows,data = result)
+	
+	<!doctype html>
+<html>
+	<body>
+
+		<center>
+		<header> <h1> Home </h1> </header>
+		<header> <h1> Thiruvathilingam, Shakthi Prakash </h1> </header>
+		<header> <h1> 1001518112</h1> </header>
+		<br> Between 5 and 10
+			{% for row in rows %}
+			{{row[1]}} <br>
+			{% endfor %}
+			<br>
+			<br>
+			Between 10 and 50 
+			{% for row in data %}
+			{{row[1]}} <br>
+			{% endfor %}
+	</body>
+</html>
 
  6. Show a pie chart for percent voted, that is, total population/voted (2nd column divided by last column)
     from  to 40 to 80 percent in groups of N percent, where we will give you N in a web form, 
