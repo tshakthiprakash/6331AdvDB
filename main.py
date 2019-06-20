@@ -17,9 +17,21 @@ from scipy.spatial import distance
 
 con = sql.connect("database.db")
 rd = redis.StrictRedis(host='shakthi8112.redis.cache.windows.net', port=6380, db=0,password='ncP8NFImWyXmxKjo1MOVoAmJg7KRFX7511MbiSFHR9k=',ssl=True)
+
 @app.route('/')
 def home():
-   return render_template('home.html')
+	result = []
+	query = "SELECT * FROM voting where TotalPop between 500 and 1000 "
+	con = sql.connect("database.db") 
+	cur = con.cursor()
+	cur.execute(query)
+	rows = cur.fetchall()
+	query = "SELECT * FROM voting where TotalPop between 1000 and 5000 "
+	con = sql.connect("database.db") 
+	cur = con.cursor()
+	cur.execute(query)
+	result = cur.fetchall()
+	return render_template('home.html',rows = rows,data = result)
   
 @app.route('/enternew')
 def upload_csv():
@@ -31,7 +43,7 @@ def addrec():
 	   con = sql.connect("database.db")
 	   csv = request.files['myfile']
 	   file = pd.read_csv(csv)
-	   file.to_sql('Earthquake', con, schema=None, if_exists='replace', index=True, index_label=None, chunksize=None, dtype=None)
+	   file.to_sql('voting', con, schema=None, if_exists='replace', index=True, index_label=None, chunksize=None, dtype=None)
 	   con.close()
 	   return render_template('home.html')
 
