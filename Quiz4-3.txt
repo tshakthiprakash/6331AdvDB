@@ -103,12 +103,79 @@ def home():
     are in that group. Please show the pie sections in different colors and put the label (that is the group, for example,
     "40-60", "60-80") outside the pie section and the pie part size (that is the number of states, or the percent of states,
     inside that pie section.) The pie chart should be between 70% and 95% of the width of your display.
+@app.route('/q1search')
+def q1search():
+	return render_template('q1search.html')
+	
+@app.route('/clustering_pie',methods = ['POST', 'GET'])
+def clustering_pie():	
+	n = int(request.form["num"])
+	main_result = []
+	result = []
+	query = "SELECT * FROM voting "
+	con = sql.connect("database.db") 
+	cur = con.cursor()
+	cur.execute(query)
+	rows = cur.fetchall()
+	indresult = []
+	for i in range(0,len(rows)):
+		if (rows[i][5]/rows[i][2])*100 >= 40 and (rows[i][5]/rows[i][2])*100 <=80 :
+			indresult.append(rows[i])
+	for j in range(40,80):
+		count = 0
+		t = str(j)+str(j+n)
+		for i in range(0,len(indresult)):
+			
+			if (indresult[i][5]/rows[i][2])*100 <= j and (indresult[i][5]/rows[i][2])*100 >= j+n :
+				count = count + 1
+	result.append(t)
+	result.append(count)
+	main_result.append(result)
+	print(main_result)
+	y=pd.DataFrame(main_result)
+	X= y.dropna()
+	fig=plt.figure()
+	plt.pie(X[1],labels = X[0],autopct='%1.0f%%')
+	plt.legend()
+	plot = convert_fig_to_html(fig)
+	return render_template("clus_o.html",data=plot.decode('utf8'))
 
  7. For the formula x=y*y+1 (that is, x = y squared plus 1), for the values of y between N1 and N2, where y is an integer,
     please show a point chart or a scatter chart. The x axis should be horizontal, and the y vertical. 
     The axis (or all points) should be labeled with values. The user will give the values of N1 and N2, the increment is always 1.
     (For example, N1 might be 1, and N2 is 4, so the values for y, will be 1, 2, 3, and 4, the corresponding x are 2, 5, 10, 17)
     The axis should be labeled, and the plot should occupy between 70% and 95% of the width of your display.
+	
+	
+@app.route('/q2search')
+def q2search():
+	return render_template('q2search.html')
+	
+@app.route('/clustering_scatter',methods = ['POST', 'GET'])
+def clustering_scatter():
+	rows = []
+	mainres = []
+	n1  = int(request.form["n1"])
+	n2  = int(request.form["n2"])
+	for j in range(n1,n2):
+		resx = (j*j)+1
+		rows.append(resx)
+		#mainres.append(rows)
+	y=pd.DataFrame(rows)
+	print(y)
+	X= y.dropna()
+	#print(X)
+	'''k=KMeans(n_clusters=5,random_state=0).fit(X)
+	c=k.cluster_centers_
+	l=k.labels_
+	fig=plt.figure()
+	m=[]
+	plt.scatter(X[0],X[1],c=l)
+	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')'''
+	fig=plt.figure()
+	plt.plot(X[0],marker='o',markerfacecolor='red',markersize=6,color='blue',linewidth=1,linestyle='dashed')
+	plot = convert_fig_to_html(fig)
+	return render_template("clus_o.html",data=plot.decode('utf8'))
 
  8. Create a vertical bar graph that shows the total registered for all states (ie, the number of states) for in groups of N
     (millions), (for example if N is 10, then 1 to 10 million, 10 to 20 million, 20 to 30 million, etc)

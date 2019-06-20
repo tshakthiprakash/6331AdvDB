@@ -174,23 +174,21 @@ def clustering_scatter():
 	mainres = []
 	n1  = int(request.form["n1"])
 	n2  = int(request.form["n2"])
-	for j in range(n1,n2):
-		resx = (j*j)+1
-		rows.append(resx)
-		#mainres.append(rows)
-	y=pd.DataFrame(rows)
-	print(y)
-	X= y.dropna()
-	#print(X)
-	'''k=KMeans(n_clusters=5,random_state=0).fit(X)
-	c=k.cluster_centers_
-	l=k.labels_
-	fig=plt.figure()
-	m=[]
-	plt.scatter(X[0],X[1],c=l)
-	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')'''
-	fig=plt.figure()
-	plt.plot(X[0],marker='o',markerfacecolor='red',markersize=6,color='blue',linewidth=1,linestyle='dashed')
+	x=[]
+	y=[]
+	i=n1
+	for i in range (n2):
+
+		t=(i*i)+1
+		x.append(t)
+		y.append(i)
+		
+		
+	fig = plt.figure()
+	plt.plot(y,x ,marker ='o',color='r',markeredgecolor='b')
+	plt.title('x=(y*y)+1')
+	plt.xlabel('y value')
+	plt.ylabel('x value')
 	plot = convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
 
