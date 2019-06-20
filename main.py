@@ -227,17 +227,16 @@ def clustering():
 		main_result.append(result)
 		print(main_result)
 	y=pd.DataFrame(main_result)
-	print(y)
-	#k=KMeans(n_clusters=5,random_state=0).fit(y)
-	#c=k.cluster_centers_
-	#l=k.labels_
-	#print(c[:,0])
 	X= y.dropna()
 	fig=plt.figure()
-	plt.bar(X[0],X[1])
-	plt.xlabel('Range', fontsize=5)
-	plt.ylabel('No of Eq', fontsize=5)
-	#plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')
+	for i in range(len(X[0])):
+		plt.bar(X[0][i],X[1][i],label=X[0][i])
+	#plt.bar(X[0],X[1],color=['r','y','b','g'],align='center')
+	for i,v in enumerate(X[1]):
+		plt.text(i, v, str(v), fontweight='bold',horizontalalignment='center')
+	plt.legend()
+	plt.xlabel('Range', fontsize=15)
+	plt.ylabel('No of Eq', fontsize=15)
 	plot = convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
 	
@@ -259,7 +258,8 @@ def clustering_pie():
 	y=pd.DataFrame(main_result)
 	X= y.dropna()
 	fig=plt.figure()
-	plt.pie(X[1],labels = X[0])
+	plt.pie(X[1],labels = X[0],autopct='%1.0f%%')
+	plt.legend()
 	plot = convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
 	
@@ -282,6 +282,22 @@ def clustering_scatter():
 	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')
 	plot = convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
+
+@app.route('/plot_line',methods=['GET','POST'])
+def plot_line():
+    l=[]
+    l1=[]
+    mlist=[]
+    query='SELECT latitude,longitude FROM Earthquake'
+    con = sql.connect("database.db")
+    cur = con.cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+    df=pd.DataFrame(rows)
+    fig=plt.figure()
+    plt.plot(df[0],df[1],marker='o',markerfacecolor='red',markersize=6,color='blue',linewidth=1,linestyle='dashed')
+    plot=convert_fig_to_html(fig)
+    return render_template("clus_o.html", data=plot.decode('utf8'))
 
 
 
