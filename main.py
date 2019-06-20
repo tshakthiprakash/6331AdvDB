@@ -97,8 +97,11 @@ def convert_fig_to_html(fig):
 	figdata_png = base64.b64encode(figfile.getvalue())
 	return figdata_png
 	
+@app.route('/q3search')
+def q3search():
+	return render_template('q3search.html')
 	
-@app.route('/clustering')
+@app.route('/clustering',methods = ['POST', 'GET'])
 def clustering():	
 	count=[]
 	labels_n=[]
