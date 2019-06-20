@@ -157,23 +157,21 @@ def clustering_scatter():
 	mainres = []
 	n1  = int(request.form["n1"])
 	n2  = int(request.form["n2"])
-	for j in range(n1,n2):
-		resx = (j*j)+1
-		rows.append(resx)
-		#mainres.append(rows)
-	y=pd.DataFrame(rows)
-	print(y)
-	X= y.dropna()
-	#print(X)
-	'''k=KMeans(n_clusters=5,random_state=0).fit(X)
-	c=k.cluster_centers_
-	l=k.labels_
-	fig=plt.figure()
-	m=[]
-	plt.scatter(X[0],X[1],c=l)
-	plt.scatter(c[:,0],c[:,1],c='r',s=100,marker='x')'''
-	fig=plt.figure()
-	plt.plot(X[0],marker='o',markerfacecolor='red',markersize=6,color='blue',linewidth=1,linestyle='dashed')
+	x=[]
+	y=[]
+	i=n1
+	for i in range (n2):
+
+		t=(i*i)+1
+		x.append(t)
+		y.append(i)
+		
+		
+	fig = plt.figure()
+	plt.plot(y,x ,marker ='o',color='r',markeredgecolor='b')
+	plt.title('x=(y*y)+1')
+	plt.xlabel('y value')
+	plt.ylabel('x value')
 	plot = convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
 
@@ -181,6 +179,44 @@ def clustering_scatter():
     (millions), (for example if N is 10, then 1 to 10 million, 10 to 20 million, 20 to 30 million, etc)
     The bars should be labeled, and the chart should occupy between 70% and 95% of the width of your display,
     show legend (amounts) inside each bar.
+	count=[]
+		labels_n=[]
+		n = int(request.form["val1"])
+		
+		for i in np.arange(1000,30000,n):
+			t=[]
+			val1=i
+			val2=i+n
+			query = "select count(*) from Vote where  TotalPop BETWEEN ' " + str(val1)+ " 'and ' " + str(val2)+ " ' " 
+			con = sql.connect("database.db") 
+			cur = con.cursor()
+			cur.execute(query)
+			rows = cur.fetchone()
+			count.append(rows[0])
+			t.append(str(val1)+"-"+str(val2))
+			#t.append(str(val2))
+			labels_n.append(t)
+			
+		
+		fig=plt.figure()
+		y_pos =np.arange(len(labels_n))
+		#print(y_pos)
+		color=['r','b','g','y','c','b']
+		for i  in range(len(count)):
+			plt.bar(y_pos[i] , count[i] , color=color[i], align ='center',label="{0}".format(labels_n[i]))
+			
+		plt.xticks(y_pos,labels_n)
+		plt.xlabel('range')
+		plt.title(' TotalPop')
+		plt.ylabel('count')
+		#plt.show()
+		for i,v in enumerate(count):
+			plt.text(i,v , str(v), color='r', fontweight='bold' , horizontalalignment='center') #vertical
+			# plt.text(v,i , str(v), color='r', fontweight='bold') horizontal
+			#print(v,i,str(v))
+		
+		plt.legend(numpoints=1)
+		plot=convert_fig_to_html(fig)
  
  9. Show GTA parts 5, 6, 7, 8
 

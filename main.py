@@ -100,31 +100,44 @@ def convert_fig_to_html(fig):
 	
 @app.route('/clustering')
 def clustering():	
-	main_result = []
-	for i in range(0,10,2):
-		result = []
-		query = "SELECT count(*) FROM Earthquake where mag between "+str(i)+" and "+str(i+2)
+	count=[]
+	labels_n=[]
+	n = 5000
+		
+	for i in np.arange(1000,30000,n):
+		t=[]
+		val1=i
+		val2=i+n
+		query = "select count(*) from Vote where  TotalPop BETWEEN ' " + str(val1)+ " 'and ' " + str(val2)+ " ' " 
 		con = sql.connect("database.db") 
 		cur = con.cursor()
 		cur.execute(query)
 		rows = cur.fetchone()
-		t = str(i)+ "-" + str(i+2)
-		result.append(t)
-		result.append(rows[0])
-		main_result.append(result)
-		print(main_result)
-	y=pd.DataFrame(main_result)
-	X= y.dropna()
-	fig=plt.figure()
-	for i in range(len(X[0])):
-		plt.bar(X[0][i],X[1][i],label=X[0][i])
-	#plt.bar(X[0],X[1],color=['r','y','b','g'],align='center')
-	for i,v in enumerate(X[1]):
-		plt.text(i, v, str(v), fontweight='bold',horizontalalignment='center')
-	plt.legend()
-	plt.xlabel('Range', fontsize=15)
-	plt.ylabel('No of Eq', fontsize=15)
-	plot = convert_fig_to_html(fig)
+		count.append(rows[0])
+		t.append(str(val1)+"-"+str(val2))
+		#t.append(str(val2))
+		labels_n.append(t)
+			
+		
+		fig=plt.figure()
+		y_pos =np.arange(len(labels_n))
+		#print(y_pos)
+		color=['r','b','g','y','c','b']
+		for i  in range(len(count)):
+			plt.bar(y_pos[i] , count[i] , color=color[i], align ='center',label="{0}".format(labels_n[i]))
+			
+		plt.xticks(y_pos,labels_n)
+		plt.xlabel('range')
+		plt.title(' TotalPop')
+		plt.ylabel('count')
+		#plt.show()
+		for i,v in enumerate(count):
+			plt.text(i,v , str(v), color='r', fontweight='bold' , horizontalalignment='center') #vertical
+			# plt.text(v,i , str(v), color='r', fontweight='bold') horizontal
+			#print(v,i,str(v))
+		
+		plt.legend(numpoints=1)
+		plot=convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
 
 @app.route('/q1search')
