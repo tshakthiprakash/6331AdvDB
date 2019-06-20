@@ -1,7 +1,7 @@
 from flask import *
 import sqlite3 as sql
 import pandas as pd
-import numpy as nd
+import numpy as np
 application = app = Flask(__name__)
 import os
 import time
@@ -108,7 +108,7 @@ def clustering():
 		t=[]
 		val1=i
 		val2=i+n
-		query = "select count(*) from Vote where  TotalPop BETWEEN ' " + str(val1)+ " 'and ' " + str(val2)+ " ' " 
+		query = "select count(*) from voting where  TotalPop BETWEEN ' " + str(val1)+ " 'and ' " + str(val2)+ " ' " 
 		con = sql.connect("database.db") 
 		cur = con.cursor()
 		cur.execute(query)
