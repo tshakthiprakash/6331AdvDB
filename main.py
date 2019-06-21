@@ -152,30 +152,20 @@ def clustering_pie():
 	n = int(request.form["num"])
 	main_result = []
 	result = []
-	query = "SELECT * FROM voting "
-	con = sql.connect("database.db") 
-	cur = con.cursor()
-	cur.execute(query)
-	rows = cur.fetchall()
-	indresult = []
-	for i in range(0,len(rows)):
-		if (rows[i][5]/rows[i][2])*100 >= 40 and (rows[i][5]/rows[i][2])*100 <=80 :
-			indresult.append(rows[i])
-	for j in range(40,80):
-		count = 0
-		t = str(j)+str(j+n)
-		for i in range(0,len(indresult)):
-			
-			if (indresult[i][5]/rows[i][2])*100 <= j and (indresult[i][5]/rows[i][2])*100 >= j+n :
-				count = count + 1
-	result.append(t)
-	result.append(count)
-	main_result.append(result)
-	print(main_result)
+	for i in range(40,80,n):
+		query = "SELECT count(*) FROM voting where (Voted*1.0/TotalPop)*100 between "+str(i)+ " and "+str(i+n)
+		con = sql.connect("database.db") 
+		cur = con.cursor()
+		cur.execute(query)
+		rows = cur.fetchone()
+		t = str(i)+ " - "+str(i+n)
+		result.append(t)
+		main_result.append(rows)
 	y=pd.DataFrame(main_result)
 	X= y.dropna()
+	print(X)
 	fig=plt.figure()
-	plt.pie(X[1],labels = X[0],autopct='%1.0f%%')
+	plt.pie(X[0],labels = result,autopct='%1.0f%%')
 	plt.legend()
 	plot = convert_fig_to_html(fig)
 	return render_template("clus_o.html",data=plot.decode('utf8'))
