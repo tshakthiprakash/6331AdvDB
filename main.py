@@ -1,4 +1,4 @@
-from flask import *
+from flask import Flask,render_template
 import sqlite3 as sql
 import pandas as pd
 import numpy as np
