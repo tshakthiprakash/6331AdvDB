@@ -153,12 +153,15 @@ def clustering_pie():
 	main_result = []
 	result = []
 	for i in range(40,80,n):
-		query = "SELECT count(*) FROM voting where (Voted*1.0/TotalPop)*100 between "+str(i)+ " and "+str(i+n)
+		dest = i+n
+		if dest > 80:
+			dest = 80
+		query = "SELECT count(*) FROM voting where (Voted*1.0/TotalPop)*100 between "+str(i)+ " and "+str(dest)
 		con = sql.connect("database.db") 
 		cur = con.cursor()
 		cur.execute(query)
 		rows = cur.fetchone()
-		t = str(i)+ " - "+str(i+n)
+		t = str(i)+ " - "+str(dest)
 		result.append(t)
 		main_result.append(rows)
 	y=pd.DataFrame(main_result)
