@@ -29,6 +29,7 @@ def home():
 	query = "SELECT * FROM voting where TotalPop between 1000 and 5000 "
 	con = sql.connect("database.db") 
 	cur = con.cursor()
+	print('hi')
 	cur.execute(query)
 	result = cur.fetchall()
 	return render_template('home.html',rows = rows,data = result)
