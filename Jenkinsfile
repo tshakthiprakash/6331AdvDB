@@ -3,7 +3,9 @@ pipeline {
    
    stages {
       stage('build'){
-          echo 'success on change'
+         steps{
+            echo 'success on change'
+         }
       }
    }
  }
